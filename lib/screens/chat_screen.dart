@@ -32,8 +32,19 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void gerMesseges() async {
-    final messages = await _fire.collection('messages').getDocuments();
+  // void gerMessages() async {
+  //   final messages = await _fire.collection('messages').getDocuments();
+  //   for(var message in messages.documents){
+  //       print(message.data);
+  //   }
+  // }
+
+  void messageStream() async {
+    await for (var snapShot in _fire.collection('messages').snapshots()) {
+      for (var message in snapShot.documents) {
+        print(message.data);
+      }
+    }
   }
 
   @override
