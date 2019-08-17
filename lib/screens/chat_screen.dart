@@ -68,6 +68,32 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            StreamBuilder(
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return CircularProgressIndicator(
+                    backgroundColor: Colors.lightBlueAccent,
+                  );
+                }
+                final messages = snapshot.data.documents;
+                List<Text> messagesWidgets = [];
+                for (var message in messages) {
+                  final messageText = message.data['text'];
+                  final messageSender = message.data['sender'];
+                  final messageWidget = Text(
+                    '$messageText from $messageSender',
+                    style: TextStyle(fontSize: 50.0),
+                  );
+                  messagesWidgets.add(messageWidget);
+                }
+                return Expanded(
+                  child: ListView(
+                    children: messagesWidgets,
+                  ),
+                );
+              },
+              stream: _fire.collection('messages').snapshots(),
+            ),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
