@@ -1,21 +1,22 @@
-import 'package:flash_chat/constants.dart';
-import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flash_chat/component/rounded_button.dart';
+import 'package:flash_chat/component/generic_button.dart';
+import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class RegistrationScreen extends StatefulWidget {
-  static final id = 'registration_screen';
+  static String id = 'registration_screen';
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
-  bool showSpinner = false;
   String email;
   String password;
+  bool showSpinner = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,35 +42,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 height: 48.0,
               ),
               TextField(
-                  keyboardType: TextInputType.emailAddress,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    email = value;
-                  },
-                  decoration: kTextFileDecoration.copyWith(
-                      hintText: 'Enter Your Email')),
+                keyboardType: TextInputType.emailAddress,
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  //Do something with the user input.
+                  email = value;
+                },
+                decoration:
+                    kTestFieldDecoration.copyWith(hintText: 'Enter your email'),
+              ),
               SizedBox(
                 height: 8.0,
               ),
               TextField(
-                textAlign: TextAlign.center,
                 obscureText: true,
+                textAlign: TextAlign.center,
                 onChanged: (value) {
+                  //Do something with the user input.
                   password = value;
                 },
-                decoration: kTextFileDecoration.copyWith(
-                    hintText: 'Enter Your Password'),
+                decoration: kTestFieldDecoration.copyWith(
+                    hintText: 'Enter your password'),
               ),
               SizedBox(
                 height: 24.0,
               ),
-              RoundedButton(
+              GenericButton(
                 title: 'Register',
                 color: Colors.blueAccent,
                 onPressed: () async {
                   setState(() {
                     showSpinner = true;
                   });
+//                print(email);
+//                print(password);
                   try {
                     final newUser = await _auth.createUserWithEmailAndPassword(
                         email: email, password: password);
@@ -83,7 +89,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     print(e);
                   }
                 },
-              ),
+              )
             ],
           ),
         ),

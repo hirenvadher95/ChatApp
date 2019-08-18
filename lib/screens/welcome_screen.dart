@@ -1,11 +1,11 @@
-import 'package:flash_chat/screens/login_screen.dart';
-import 'package:flash_chat/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
+import 'login_screen.dart';
+import 'registration_screen.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:flash_chat/component/rounded_button.dart';
+import 'package:flash_chat/component/generic_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  static final id = 'welcome_screen';
+  static String id = 'welcome_screen';
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
@@ -14,20 +14,17 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation animation;
-
   @override
   void initState() {
     super.initState();
-    controller = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 2),
-    );
 
-    animation = CurvedAnimation(curve: Curves.decelerate, parent: controller);
+    controller =
+        AnimationController(duration: Duration(seconds: 1), vsync: this);
 
-    controller.forward();
     animation = ColorTween(begin: Colors.blueGrey, end: Colors.white)
         .animate(controller);
+    controller.forward();
+
     controller.addListener(() {
       setState(() {});
     });
@@ -54,43 +51,38 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 Hero(
                   tag: 'logo',
                   child: Container(
-                    height: 60,
                     child: Image.asset('images/logo.png'),
+                    height: 60.0,
                   ),
                 ),
-                ColorizeAnimatedTextKit(
-                  alignment: Alignment.center,
+                TypewriterAnimatedTextKit(
                   text: ['Flash Chat'],
                   textStyle: TextStyle(
                     fontSize: 45.0,
                     fontWeight: FontWeight.w900,
                   ),
-                  colors: [
-                    Colors.purple,
-                    Colors.blue,
-                    Colors.yellow,
-                    Colors.red,
-                  ],
                 ),
               ],
             ),
             SizedBox(
               height: 48.0,
             ),
-            RoundedButton(
+            GenericButton(
               title: 'Log In',
               color: Colors.lightBlueAccent,
               onPressed: () {
+                //Go to login screen.
                 Navigator.pushNamed(context, LoginScreen.id);
               },
             ),
-            RoundedButton(
-              title: 'Sign Up',
-              color: Colors.blue,
+            GenericButton(
+              title: 'Register',
+              color: Colors.blueAccent,
               onPressed: () {
+                //Go to login screen.
                 Navigator.pushNamed(context, RegistrationScreen.id);
               },
-            )
+            ),
           ],
         ),
       ),

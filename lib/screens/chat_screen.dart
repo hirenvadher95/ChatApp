@@ -1,33 +1,34 @@
-import 'package:flash_chat/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-final _fire = Firestore.instance;
+final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
 
 class ChatScreen extends StatefulWidget {
-  static final id = 'chat_screen';
+  static String id = 'chat_screen';
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final messageTextController = TextEditingController();
+  final messageTextController = new TextEditingController();
   final _auth = FirebaseAuth.instance;
+
   String messageText;
   @override
   void initState() {
     super.initState();
-    getCurrentUer();
+    getCurrentUser();
   }
 
-  void getCurrentUer() async {
+  void getCurrentUser() async {
     try {
       final user = await _auth.currentUser();
       if (user != null) {
         loggedInUser = user;
+        print(loggedInUser.email);
       }
     } catch (e) {
       print(e);
@@ -43,8 +44,11 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
+                //messageStream();
+                //Implement logout functionality
+                //
                 _auth.signOut();
-                Navigator.pushNamed(context, WelcomeScreen.id);
+                Navigator.pop(context);
               }),
         ],
         title: Text('⚡️Chat'),
@@ -55,6 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            MessagesStream(),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -64,6 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: TextField(
                       controller: messageTextController,
                       onChanged: (value) {
+                        //Do something with the user input.
                         messageText = value;
                       },
                       decoration: kMessageTextFieldDecoration,
@@ -72,7 +78,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   FlatButton(
                     onPressed: () {
                       messageTextController.clear();
-                      _fire.collection('messages').add({
+                      //Implement send functionality.
+                      _firestore.collection('messages').add({
                         'text': messageText,
                         'sender': loggedInUser.email,
                       });
@@ -93,41 +100,40 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class MessagesStream extends StatelessWidget {
-  const MessagesStream({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore.collection('messages').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return CircularProgressIndicator(
-            backgroundColor: Colors.lightBlueAccent,
+          return Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.lightBlueAccent,
+            ),
           );
         }
         final messages = snapshot.data.documents.reversed;
-        List<MessageBubble> messagesWidgets = [];
+        List<MessageBubble> messageBubbles = [];
         for (var message in messages) {
           final messageText = message.data['text'];
           final messageSender = message.data['sender'];
 
           final currentUser = loggedInUser.email;
 
-          final messageWidget = MessageBubble(
-            sender: messageSender,
-            text: messageText,
-            isMe: currentUser == messageSender,
-          );
-          messagesWidgets.add(messageWidget);
+          final messageBubble = MessageBubble(
+              sender: messageSender,
+              text: messageText,
+              isMe: currentUser == messageSender);
+          messageBubbles.add(messageBubble);
         }
         return Expanded(
           child: ListView(
             reverse: true,
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            children: messagesWidgets,
+            children: messageBubbles,
+            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
           ),
         );
       },
-      stream: _fire.collection('messages').snapshots(),
     );
   }
 }
@@ -147,18 +153,20 @@ class MessageBubble extends StatelessWidget {
         children: <Widget>[
           Text(
             sender,
-            style: TextStyle(fontSize: 12, color: Colors.black54),
+            style: TextStyle(fontSize: 12.0, color: Colors.black54),
           ),
           Material(
             borderRadius: isMe
                 ? BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30))
+                    topLeft: Radius.circular(30.0),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0),
+                  )
                 : BorderRadius.only(
-                    topRight: Radius.circular(30),
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30)),
+                    topRight: Radius.circular(30.0),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0),
+                  ),
             elevation: 5.0,
             color: isMe ? Colors.lightBlueAccent : Colors.white,
             child: Padding(
@@ -166,8 +174,9 @@ class MessageBubble extends StatelessWidget {
               child: Text(
                 '$text',
                 style: TextStyle(
-                    fontSize: 15.0,
-                    color: isMe ? Colors.white : Colors.black54),
+                  fontSize: 15.0,
+                  color: isMe ? Colors.white : Colors.black54,
+                ),
               ),
             ),
           ),
